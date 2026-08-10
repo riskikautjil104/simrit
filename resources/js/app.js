@@ -38,8 +38,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     initializeRichEditors();
+    document.addEventListener('livewire:init', initializeRichEditors);
+    document.addEventListener('livewire:initialized', initializeRichEditors);
     document.addEventListener('livewire:navigated', initializeRichEditors);
     document.addEventListener('livewire:morphed', initializeRichEditors);
+
+    new MutationObserver(initializeRichEditors).observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
 
     const toggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('admin-sidebar');
