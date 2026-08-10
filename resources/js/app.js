@@ -8,10 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const textarea = wrapper.querySelector('textarea');
             if (!editor || !textarea || editor.dataset.initialized === 'true') return;
 
+            const componentElement = wrapper.closest('[wire\\:id]');
+            const component = componentElement
+                ? window.Livewire?.find(componentElement.getAttribute('wire:id'))
+                : null;
+
             editor.innerHTML = textarea.value || '';
             editor.dataset.initialized = 'true';
             const syncEditor = () => {
-                textarea.value = editor.innerHTML;
+                const content = editor.innerHTML;
+                textarea.value = content;
+                component?.$wire.set('content', content, true);
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
                 textarea.dispatchEvent(new Event('change', { bubbles: true }));
             };

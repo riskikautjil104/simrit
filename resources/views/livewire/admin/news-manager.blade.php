@@ -46,7 +46,7 @@
                                     <button type="button" data-command="formatBlock" data-value="p" class="px-2 py-1 text-sm rounded hover:bg-white" title="Paragraf">P</button>
                                     <button type="button" data-command="createLink" class="px-2 py-1 text-sm rounded hover:bg-white" title="Tautan">Link</button>
                                 </div>
-                                <div id="news-content-editor" contenteditable="true" data-rich-content class="min-h-64 p-4 prose max-w-none focus:outline-none" data-placeholder="Tulis isi berita seperti di Microsoft Word..."></div>
+                                <div id="news-content-editor" contenteditable="true" data-rich-content wire:ignore class="min-h-64 p-4 prose max-w-none focus:outline-none" data-placeholder="Tulis isi berita seperti di Microsoft Word..."></div>
                                 <textarea id="news-content" wire:model.defer="content" class="hidden" aria-hidden="true"></textarea>
                             </div>
                             <p class="form-hint">Gunakan toolbar untuk format teks, subjudul, daftar, dan tautan.</p>
