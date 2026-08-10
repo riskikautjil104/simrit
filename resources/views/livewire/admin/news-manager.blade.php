@@ -37,7 +37,7 @@
                         <div>
                             <label for="news-content-editor" class="form-label">Isi Lengkap Berita</label>
                             <textarea id="news-content-editor" wire:key="news-content-{{ $isCreating ? 'create' : ($selectedNewsId ?? 'edit') }}" wire:model.live="content" rows="16" class="form-textarea font-mono text-sm @error('content') is-error @enderror" placeholder="Tulis isi berita di sini..."></textarea>
-                            <p class="form-hint">Isi berita wajib diisi. Tekan Enter untuk membuat paragraf baru.</p>
+                            <p class="form-hint">Isi berita wajib diisi. Pilih teks lalu gunakan Ctrl/Cmd+B (tebal), Ctrl/Cmd+I (miring), Ctrl/Cmd+U (garis bawah), atau Ctrl/Cmd+K (tautan).</p>
                             @error('content') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>

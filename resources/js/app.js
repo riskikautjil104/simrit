@@ -9,15 +9,26 @@ document.addEventListener('DOMContentLoaded', () => {
             editor.addEventListener('keydown', event => {
                 if (!(event.ctrlKey || event.metaKey)) return;
 
-                const tags = { b: ['<strong>', '</strong>'], i: ['<em>', '</em>'], u: ['<u>', '</u>'] };
-                const tag = tags[event.key.toLowerCase()];
-                if (!tag) return;
-
-                event.preventDefault();
                 const start = editor.selectionStart;
                 const end = editor.selectionEnd;
                 const selected = editor.value.slice(start, end);
-                if (!selected) return;
+                const key = event.key.toLowerCase();
+
+                if (key === 'k') {
+                    event.preventDefault();
+                    if (!selected) return;
+                    const url = window.prompt('Masukkan URL tautan:', 'https://');
+                    if (!url) return;
+                    editor.setRangeText(`<a href="${url}" target="_blank" rel="noopener">${selected}</a>`, start, end, 'select');
+                    editor.dispatchEvent(new Event('input', { bubbles: true }));
+                    return;
+                }
+
+                const tags = { b: ['<strong>', '</strong>'], i: ['<em>', '</em>'], u: ['<u>', '</u>'] };
+                const tag = tags[key];
+                if (!tag || !selected) return;
+
+                event.preventDefault();
 
                 editor.setRangeText(`${tag[0]}${selected}${tag[1]}`, start, end, 'select');
                 editor.dispatchEvent(new Event('input', { bubbles: true }));
@@ -28,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeNewsShortcuts();
     document.addEventListener('livewire:navigated', initializeNewsShortcuts);
     document.addEventListener('livewire:morphed', initializeNewsShortcuts);
+    new MutationObserver(initializeNewsShortcuts).observe(document.body, { childList: true, subtree: true });
 
     const toggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('admin-sidebar');
