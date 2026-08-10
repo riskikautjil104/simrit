@@ -75,7 +75,7 @@ class NewsManager extends Component
             'category_id' => 'nullable|exists:categories,id',
             'title'       => 'required|string|max:255',
             'excerpt'     => 'nullable|string',
-            'content'     => 'nullable|string',
+            'content'     => 'required|string|min:1',
             'status'      => 'required|in:draft,published,archived',
             'cover_image' => 'nullable|image|max:5120', // Max 5MB
         ]);
@@ -183,8 +183,8 @@ class NewsManager extends Component
         $query = News::with('category')->latest();
 
         if ($this->search) {
-            $query->where(fn($q) => $q->where('title', 'like', '%'.$this->search.'%')
-                ->orWhere('excerpt', 'like', '%'.$this->search.'%'));
+            $query->where(fn($q) => $q->where('title', 'like', '%' . $this->search . '%')
+                ->orWhere('excerpt', 'like', '%' . $this->search . '%'));
         }
 
         if ($this->categoryFilter) {
