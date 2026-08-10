@@ -170,7 +170,7 @@
 
         <div class="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
             <span>{{ \App\Models\Setting::get('footer_text', '© '.date('Y').' Ruang IT RSUD Dr. H. Chasan Boesoirie Ternate') }}</span>
-            <a href="{{ route('login') }}" class="hover:text-white transition-colors text-xs">Admin Login</a>
+            {{-- <a href="{{ route('login') }}" class="hover:text-white transition-colors text-xs">Admin Login</a> --}}
         </div>
     </div>
 </footer>
