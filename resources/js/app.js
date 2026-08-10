@@ -2,58 +2,32 @@ import './bootstrap';
 
 // ── Mobile sidebar toggle ──────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    const initializeRichEditors = () => {
-        document.querySelectorAll('[data-rich-editor]').forEach(wrapper => {
-            const editor = wrapper.querySelector('[data-rich-content]');
-            const textarea = wrapper.querySelector('textarea');
-            if (!editor || !textarea || editor.dataset.initialized === 'true') return;
+    const initializeNewsShortcuts = () => {
+        document.querySelectorAll('#news-content-editor').forEach(editor => {
+            if (editor.dataset.shortcutsInitialized === 'true') return;
+            editor.dataset.shortcutsInitialized = 'true';
+            editor.addEventListener('keydown', event => {
+                if (!(event.ctrlKey || event.metaKey)) return;
 
-            const componentElement = wrapper.closest('[wire\\:id]');
-            const component = componentElement
-                ? window.Livewire?.find(componentElement.getAttribute('wire:id'))
-                : null;
+                const tags = { b: ['<strong>', '</strong>'], i: ['<em>', '</em>'], u: ['<u>', '</u>'] };
+                const tag = tags[event.key.toLowerCase()];
+                if (!tag) return;
 
-            editor.innerHTML = textarea.value || '';
-            editor.dataset.initialized = 'true';
-            const syncEditor = () => {
-                const content = editor.innerHTML;
-                textarea.value = content;
-                component?.$wire.set('content', content, true);
-                textarea.dispatchEvent(new Event('input', { bubbles: true }));
-                textarea.dispatchEvent(new Event('change', { bubbles: true }));
-            };
+                event.preventDefault();
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                const selected = editor.value.slice(start, end);
+                if (!selected) return;
 
-            editor.addEventListener('input', syncEditor);
-            editor.closest('form')?.addEventListener('submit', syncEditor, true);
-
-            wrapper.querySelectorAll('[data-command]').forEach(button => {
-                button.addEventListener('mousedown', event => event.preventDefault());
-                button.addEventListener('click', () => {
-                    const command = button.dataset.command;
-                    const value = button.dataset.value || null;
-                    if (command === 'createLink') {
-                        const url = window.prompt('Masukkan URL tautan:');
-                        if (url) document.execCommand(command, false, url);
-                    } else {
-                        document.execCommand(command, false, value);
-                    }
-                    editor.focus();
-                    syncEditor();
-                });
+                editor.setRangeText(`${tag[0]}${selected}${tag[1]}`, start, end, 'select');
+                editor.dispatchEvent(new Event('input', { bubbles: true }));
             });
         });
     };
 
-    initializeRichEditors();
-    document.addEventListener('livewire:init', initializeRichEditors);
-    document.addEventListener('livewire:initialized', initializeRichEditors);
-    document.addEventListener('livewire:navigated', initializeRichEditors);
-    document.addEventListener('livewire:morphed', initializeRichEditors);
-
-    new MutationObserver(initializeRichEditors).observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
+    initializeNewsShortcuts();
+    document.addEventListener('livewire:navigated', initializeNewsShortcuts);
+    document.addEventListener('livewire:morphed', initializeNewsShortcuts);
 
     const toggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('admin-sidebar');
