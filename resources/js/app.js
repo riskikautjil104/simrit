@@ -10,10 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             editor.innerHTML = textarea.value || '';
             editor.dataset.initialized = 'true';
-            editor.addEventListener('input', () => {
+            const syncEditor = () => {
                 textarea.value = editor.innerHTML;
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
-            });
+                textarea.dispatchEvent(new Event('change', { bubbles: true }));
+            };
+
+            editor.addEventListener('input', syncEditor);
+            editor.closest('form')?.addEventListener('submit', syncEditor, true);
 
             wrapper.querySelectorAll('[data-command]').forEach(button => {
                 button.addEventListener('mousedown', event => event.preventDefault());
@@ -27,8 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.execCommand(command, false, value);
                     }
                     editor.focus();
-                    textarea.value = editor.innerHTML;
-                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    syncEditor();
                 });
             });
         });
