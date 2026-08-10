@@ -1,0 +1,58 @@
+## Stitch Instructions
+
+Get the images and code for the following Stitch project's screens:
+
+## Project
+Title: RSUD IT Portal
+ID: 7423447490135562114
+
+## Screens:
+1. Manajemen Berita (Admin)
+    ID: a600c5e4e9cb4a62bbed70d87182fb45
+
+2. Admin Dashboard RSUD IT
+    ID: 8796e2962d3b463f91629700ce664008
+
+3. Layanan IT RSUD
+    ID: 029eee05382f43709bda1c662090dfd9
+
+4. Profil Tim IT RSUD IT
+    ID: c75f3bc694b7409ea5e3c9d19ecb011f
+
+5. Galeri Kegiatan IT RSUD IT
+    ID: e54ffe18a6984ca8a117a9142f569be4
+
+6. Dokumen IT RSUD IT
+    ID: 87dbbb3e4f994719a68c21f49a643a37
+
+7. Kontak RSUD IT Unit
+    ID: d02d7ab51d9a497c8cadba7de3759737
+
+8. Berita & Artikel RSUD IT
+    ID: 766ee9c1823045cb8a637bef9164b379
+
+9. Manajemen Layanan IT (Admin)
+    ID: 12451ac4288a4316bc70dea45dc5ac8b
+
+10. Manajemen Dokumen IT (Admin)
+    ID: 5035999f0df04bd69e5898a7e4e9af80
+
+11. Manajemen Galeri Kegiatan (Admin)
+    ID: a4d8ac857d634a34a22087a6ca6d7941
+
+12. Pengaturan Portal (Admin)
+    ID: 51b10e070b684d94a70e7eb965547adb
+
+13. Manajemen User (Admin Management)
+    ID: 5b5dfbdbce3c40e1b5d27145c02ba2fd
+
+14. Log Aktivitas (Activity Log)
+    ID: ddd6f8ed41b74e92a93a3a8813d3077b
+
+15. Beranda Publik (dengan Iklan)
+    ID: 7ff5bbe215ea4c46958b0e55880ebac2
+
+16. Manajemen Iklan (Admin)
+    ID: d85abc0751a7470ea2b57c00dbacbfc0
+
+Use a utility like `curl -L` to download the hosted URLs.
