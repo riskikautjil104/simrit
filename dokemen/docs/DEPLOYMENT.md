@@ -52,6 +52,10 @@ symbolic links, use a real folder instead:
 Do not run `php artisan storage:link` on this setup. New uploads are written
 directly into `public/storage`, and existing `/storage/...` URLs continue to work.
 
+After deployment, submit `https://your-domain.example/sitemap.xml` in Google
+Search Console. Replace the placeholder with the real domain before adding a
+`Sitemap:` line to `public/robots.txt`.
+
 ## Backups
 Back up:
 - Database

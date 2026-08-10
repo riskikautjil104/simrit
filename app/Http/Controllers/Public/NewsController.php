@@ -18,8 +18,8 @@ class NewsController extends Controller
             $query->whereHas('category', fn($q) => $q->where('slug', $request->category));
         }
         if ($request->filled('q')) {
-            $query->where(fn($q) => $q->where('title', 'like', '%'.$request->q.'%')
-                ->orWhere('excerpt', 'like', '%'.$request->q.'%'));
+            $query->where(fn($q) => $q->where('title', 'like', '%' . $request->q . '%')
+                ->orWhere('excerpt', 'like', '%' . $request->q . '%'));
         }
 
         $news       = $query->paginate(12)->withQueryString();
@@ -30,10 +30,12 @@ class NewsController extends Controller
 
     public function show(string $slug): View
     {
-        $news    = News::published()->where('slug', $slug)->with('category','creator')->firstOrFail();
-        $related = News::published()->where('id','!=',$news->id)
-                        ->where('category_id', $news->category_id)
-                        ->latest('published_at')->limit(3)->get();
+        $news    = News::published()->where('slug', $slug)->with('category', 'creator')->firstOrFail();
+        News::whereKey($news->id)->increment('views');
+        $news->refresh();
+        $related = News::published()->where('id', '!=', $news->id)
+            ->where('category_id', $news->category_id)
+            ->latest('published_at')->limit(3)->get();
         return view('public.news.show', compact('news', 'related'));
     }
 }

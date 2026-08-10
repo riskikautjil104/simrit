@@ -11,6 +11,9 @@ use App\Http\Controllers\Public\GalleryController;
 use App\Http\Controllers\Public\VideoController;
 use App\Http\Controllers\Public\ServiceController;
 use App\Http\Controllers\Public\TeamController;
+use App\Models\News;
+use App\Models\Page;
+use Illuminate\Support\Facades\Response;
 
 // ── Public Routes ──────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -28,6 +31,29 @@ Route::get('/galeri/{slug}', [GalleryController::class, 'show'])->name('public.g
 Route::get('/video', [VideoController::class, 'index'])->name('public.videos');
 Route::get('/tim', [TeamController::class, 'index'])->name('public.team');
 Route::get('/logo', fn() => view('public.logo'))->name('public.logo');
+Route::get('/sitemap.xml', function () {
+    $urls = collect([
+        ['loc' => url('/'), 'lastmod' => now()->toDateString()],
+        ['loc' => route('public.news'), 'lastmod' => now()->toDateString()],
+        ['loc' => route('public.services'), 'lastmod' => now()->toDateString()],
+        ['loc' => route('public.events'), 'lastmod' => now()->toDateString()],
+        ['loc' => route('public.documents'), 'lastmod' => now()->toDateString()],
+        ['loc' => route('public.galleries'), 'lastmod' => now()->toDateString()],
+        ['loc' => route('public.videos'), 'lastmod' => now()->toDateString()],
+        ['loc' => route('public.team'), 'lastmod' => now()->toDateString()],
+    ]);
+
+    Page::where('status', 'published')->get(['slug', 'updated_at'])->each(fn($page) => $urls->push([
+        'loc' => route('public.profile', $page->slug),
+        'lastmod' => $page->updated_at->toDateString(),
+    ]));
+    News::published()->get(['slug', 'updated_at'])->each(fn($news) => $urls->push([
+        'loc' => route('public.news.show', $news->slug),
+        'lastmod' => $news->updated_at->toDateString(),
+    ]));
+
+    return Response::make(view('public.sitemap', compact('urls'))->render(), 200, ['Content-Type' => 'application/xml']);
+})->name('sitemap');
 
 // ── Auth Routes ────────────────────────────────────────────
 Route::middleware('guest')->group(function () {

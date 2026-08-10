@@ -35,8 +35,21 @@
                         </div>
 
                         <div>
-                            <label for="news-content" class="form-label">Isi Lengkap Berita (HTML didukung)</label>
-                            <textarea id="news-content" wire:model.defer="content" rows="12" class="form-textarea @error('content') is-error @enderror font-mono text-sm" placeholder="Isi berita lengkap..."></textarea>
+                            <label for="news-content-editor" class="form-label">Isi Lengkap Berita</label>
+                            <div class="border border-slate-300 rounded-lg overflow-hidden @error('content') border-red-500 @enderror" data-rich-editor>
+                                <div class="flex flex-wrap items-center gap-1 bg-slate-50 border-b border-slate-200 p-2" data-rich-toolbar>
+                                    <button type="button" data-command="bold" class="px-2 py-1 text-sm font-bold rounded hover:bg-white" title="Tebal">B</button>
+                                    <button type="button" data-command="italic" class="px-2 py-1 text-sm italic rounded hover:bg-white" title="Miring">I</button>
+                                    <button type="button" data-command="underline" class="px-2 py-1 text-sm underline rounded hover:bg-white" title="Garis bawah">U</button>
+                                    <button type="button" data-command="insertUnorderedList" class="px-2 py-1 text-sm rounded hover:bg-white" title="Daftar">Daftar</button>
+                                    <button type="button" data-command="formatBlock" data-value="h2" class="px-2 py-1 text-sm rounded hover:bg-white" title="Subjudul">H2</button>
+                                    <button type="button" data-command="formatBlock" data-value="p" class="px-2 py-1 text-sm rounded hover:bg-white" title="Paragraf">P</button>
+                                    <button type="button" data-command="createLink" class="px-2 py-1 text-sm rounded hover:bg-white" title="Tautan">Link</button>
+                                </div>
+                                <div id="news-content-editor" contenteditable="true" data-rich-content class="min-h-64 p-4 prose max-w-none focus:outline-none" data-placeholder="Tulis isi berita seperti di Microsoft Word..."></div>
+                                <textarea id="news-content" wire:model.defer="content" class="hidden" aria-hidden="true"></textarea>
+                            </div>
+                            <p class="form-hint">Gunakan toolbar untuk format teks, subjudul, daftar, dan tautan.</p>
                             @error('content') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>

@@ -18,6 +18,7 @@ class News extends Model
         'excerpt',
         'content',
         'cover_image',
+        'views',
         'status',
         'published_at',
         'created_by',

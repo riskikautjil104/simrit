@@ -2,6 +2,42 @@ import './bootstrap';
 
 // ── Mobile sidebar toggle ──────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+    const initializeRichEditors = () => {
+        document.querySelectorAll('[data-rich-editor]').forEach(wrapper => {
+            const editor = wrapper.querySelector('[data-rich-content]');
+            const textarea = wrapper.querySelector('textarea');
+            if (!editor || !textarea || editor.dataset.initialized === 'true') return;
+
+            editor.innerHTML = textarea.value || '';
+            editor.dataset.initialized = 'true';
+            editor.addEventListener('input', () => {
+                textarea.value = editor.innerHTML;
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+
+            wrapper.querySelectorAll('[data-command]').forEach(button => {
+                button.addEventListener('mousedown', event => event.preventDefault());
+                button.addEventListener('click', () => {
+                    const command = button.dataset.command;
+                    const value = button.dataset.value || null;
+                    if (command === 'createLink') {
+                        const url = window.prompt('Masukkan URL tautan:');
+                        if (url) document.execCommand(command, false, url);
+                    } else {
+                        document.execCommand(command, false, value);
+                    }
+                    editor.focus();
+                    textarea.value = editor.innerHTML;
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            });
+        });
+    };
+
+    initializeRichEditors();
+    document.addEventListener('livewire:navigated', initializeRichEditors);
+    document.addEventListener('livewire:morphed', initializeRichEditors);
+
     const toggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('admin-sidebar');
     const overlay = document.getElementById('sidebar-overlay');

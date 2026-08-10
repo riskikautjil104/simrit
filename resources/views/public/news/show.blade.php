@@ -1,4 +1,21 @@
-<x-public-layout>
+@php
+    $newsUrl = route('public.news.show', $news->slug);
+    $newsDescription = $news->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($news->content), 155);
+    $newsImage = $news->cover_image ? asset('storage/'.$news->cover_image) : asset('logo/logoruangit.png');
+    $articleSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'NewsArticle',
+        'headline' => $news->title,
+        'description' => $newsDescription,
+        'image' => [$newsImage],
+        'datePublished' => optional($news->published_at ?: $news->created_at)->toIso8601String(),
+        'dateModified' => optional($news->updated_at)->toIso8601String(),
+        'author' => ['@type' => 'Organization', 'name' => $news->creator?->name ?: 'SIMRIT RSUD Ternate'],
+        'publisher' => ['@type' => 'Organization', 'name' => 'SIMRIT RSUD Ternate', 'logo' => ['@type' => 'ImageObject', 'url' => asset('logo/logoruangit.png')]],
+        'mainEntityOfPage' => $newsUrl,
+    ];
+@endphp
+<x-public-layout :title="$news->title" :meta-description="$newsDescription" :meta-image="$newsImage" meta-type="article" :schema="$articleSchema">
     {{-- Header Banner --}}
     <section class="bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] text-white py-12" aria-label="Breadcrumbs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,8 +55,17 @@
                     {!! $news->content !!}
                 </div>
 
-                <div class="border-t border-slate-100 pt-6 mt-8 flex items-center justify-between text-xs text-slate-400">
-                    <span>Penulis: {{ $news->creator ? $news->creator->name : 'Administrator' }}</span>
+                <div class="border-t border-slate-100 pt-6 mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-400">
+                    <div class="space-y-1">
+                        <span class="block">Penulis: {{ $news->creator ? $news->creator->name : 'Administrator' }}</span>
+                        <span class="block">{{ number_format($news->views) }} kali dilihat</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-semibold text-slate-500">Bagikan:</span>
+                        <a href="https://wa.me/?text={{ urlencode($news->title.' '.$newsUrl) }}" target="_blank" rel="noopener" class="btn btn-sm btn-secondary">WhatsApp</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($newsUrl) }}" target="_blank" rel="noopener" class="btn btn-sm btn-secondary">Facebook</a>
+                        <button type="button" onclick="navigator.clipboard?.writeText(@js($newsUrl))" class="btn btn-sm btn-secondary">Salin Link</button>
+                    </div>
                 </div>
             </article>
 

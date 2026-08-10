@@ -1,11 +1,47 @@
+@props([
+    'title' => null,
+    'metaDescription' => null,
+    'metaImage' => null,
+    'metaType' => 'website',
+    'schema' => null,
+])
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{{ $metaDescription ?? \App\Models\Setting::get('site_description', 'Portal informasi resmi Ruang IT RSUD Dr. H. Chasan Boesoirie Ternate') }}">
-    <title>{{ $title ?? config('app.name') }} — {{ \App\Models\Setting::get('site_name', 'SIMRIT Chasan Boesoirie') }}</title>
-    <link rel="icon" type="image/x-icon" href="{{ \App\Models\Setting::get('favicon') ?: asset('favicon.ico') }}">
+    @php
+        $siteName = \App\Models\Setting::get('site_name', 'SIMRIT Chasan Boesoirie');
+        $description = $metaDescription ?? \App\Models\Setting::get('site_description', 'Portal informasi resmi Ruang IT RSUD Dr. H. Chasan Boesoirie Ternate, Maluku Utara.');
+        $faviconSetting = \App\Models\Setting::get('favicon');
+        $faviconUrl = $faviconSetting ? asset('storage/'.$faviconSetting) : asset('favicon.ico');
+        $shareImage = $metaImage ?: asset('logo/logoruangit.png');
+    @endphp
+    <meta name="description" content="{{ $description }}">
+    <meta name="keywords" content="RSUD Ternate, RSUD Dr. H. Chasan Boesoirie, Ternate, Maluku Utara, rumah sakit Ternate, berita Ternate, Ruang IT RSUD">
+    <meta name="author" content="{{ $siteName }}">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <title>{{ $title ?? config('app.name') }} — {{ $siteName }}</title>
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ file_exists(public_path('favicon-96x96.png')) ? asset('favicon-96x96.png') : $faviconUrl }}">
+    <link rel="icon" type="image/svg+xml" href="{{ file_exists(public_path('favicon.svg')) ? asset('favicon.svg') : $faviconUrl }}">
+    <link rel="shortcut icon" href="{{ $faviconUrl }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ file_exists(public_path('apple-touch-icon.png')) ? asset('apple-touch-icon.png') : $faviconUrl }}">
+    <meta name="apple-mobile-web-app-title" content="SIMRIT">
+    <link rel="manifest" href="{{ file_exists(public_path('site.webmanifest')) ? asset('site.webmanifest') : asset('site.webmanifest') }}">
+    <meta property="og:type" content="{{ $metaType }}">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:title" content="{{ $title ?? $siteName }}">
+    <meta property="og:description" content="{{ $description }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ $shareImage }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $title ?? $siteName }}">
+    <meta name="twitter:description" content="{{ $description }}">
+    <meta name="twitter:image" content="{{ $shareImage }}">
+    @if($schema)
+        <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
