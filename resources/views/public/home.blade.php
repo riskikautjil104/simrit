@@ -27,7 +27,7 @@
                     <div class="w-80 h-80 rounded-full bg-white/10 backdrop-blur-2xl border border-white/20 absolute -top-10 -left-10 animate-pulse"></div>
                     <div class="w-96 h-96 rounded-full bg-gradient-to-tr from-emerald-500/20 to-blue-500/20 backdrop-blur-3xl border border-white/10 flex items-center justify-center p-8 shadow-2xl relative">
                         <div class="text-center">
-                            <div class="text-7xl font-black tracking-widest text-white/90">SIMRIT</div>
+                            <div class="text-7xl font-black tracking-widest text-white/90">SIRSIT</div>
                             <div class="text-xs uppercase tracking-widest text-emerald-400 font-bold mt-2">RSUD Dr. H. Chasan Boesoirie</div>
                         </div>
                     </div>
