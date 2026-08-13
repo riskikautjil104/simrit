@@ -4,15 +4,20 @@ namespace App\Livewire\Admin;
 
 use App\Models\QuizRegistration;
 use App\Models\User;
+use App\Models\Quiz;
+use App\Models\QuizQuestion;
+use App\Models\QuizAnswer;
 use App\Services\ActivityLogger;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
 class QuizRegistrationManager extends Component
 {
     use WithPagination;
+    use WithFileUploads;
 
     public $search = '';
     public $statusFilter = '';
@@ -22,6 +27,11 @@ class QuizRegistrationManager extends Component
     public $generatedPassword = null;
     public $generatedEmail = null;
     public $generatedName = null;
+
+    // CSV Import properties
+    public $csvFile;
+    public $selectedQuizId = '';
+    public $showImportModal = false;
 
     public function updatingSearch() { $this->resetPage(); }
     public function updatingStatusFilter() { $this->resetPage(); }
@@ -104,8 +114,17 @@ class QuizRegistrationManager extends Component
         $this->viewingAnswersUserId = $userId;
         $this->viewingParticipantName = $name;
 
-        // Query all questions and join the participant's answers
-        $this->participantAnswers = QuizQuestion::orderBy('sort_order')
+        // Find the quiz session this participant is registered for
+        $registration = QuizRegistration::where('user_id', $userId)->first();
+        $quizId = $registration ? $registration->quiz_id : null;
+
+        // Query questions belonging only to the participant's registered quiz session
+        $query = QuizQuestion::query();
+        if ($quizId) {
+            $query->where('quiz_id', $quizId);
+        }
+
+        $this->participantAnswers = $query->orderBy('sort_order')
             ->orderBy('id')
             ->get()
             ->map(function($q) use ($userId) {
@@ -177,6 +196,128 @@ class QuizRegistrationManager extends Component
         }
     }
 
+    public function deleteRegistration($id)
+    {
+        $reg = QuizRegistration::findOrFail($id);
+        $name = $reg->name;
+
+        // If there is an associated user, delete it
+        if ($reg->user_id) {
+            $user = User::find($reg->user_id);
+            if ($user) {
+                // Delete user's answers first
+                QuizAnswer::where('user_id', $user->id)->delete();
+                $user->delete();
+            }
+        }
+
+        $reg->delete();
+
+        ActivityLogger::log('delete', "Menghapus peserta/pendaftaran kuis: {$name}", null);
+
+        session()->flash('success', "Peserta \"{$name}\" berhasil dihapus.");
+
+        if ($this->viewingRegDetails && $this->viewingRegDetails->id == $id) {
+            $this->closeDetails();
+        }
+    }
+
+    public function importCsv()
+    {
+        $this->validate([
+            'selectedQuizId' => 'required|exists:quizzes,id',
+            'csvFile' => 'required|file|mimes:csv,txt|max:2048',
+        ], [
+            'selectedQuizId.required' => 'Pilih kuis tujuan terlebih dahulu.',
+            'csvFile.required' => 'Pilih file CSV terlebih dahulu.',
+            'csvFile.mimes' => 'File harus berupa format CSV.',
+        ]);
+
+        $path = $this->csvFile->getRealPath();
+        $file = fopen($path, 'r');
+
+        // Read header
+        $header = fgetcsv($file, 1000, ',');
+        if (!$header) {
+            session()->flash('error', 'File CSV kosong atau tidak dapat dibaca.');
+            fclose($file);
+            return;
+        }
+
+        // Clean headers (lowercase and trim whitespace/bom)
+        $header = array_map(function($h) {
+            return strtolower(trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $h)));
+        }, $header);
+
+        // Required columns check: name, email
+        $nameIdx = array_search('name', $header);
+        $emailIdx = array_search('email', $header);
+        $positionIdx = array_search('position', $header);
+        $phoneIdx = array_search('phone', $header);
+        $passwordIdx = array_search('password', $header);
+
+        if ($nameIdx === false || $emailIdx === false) {
+            session()->flash('error', 'Header CSV harus memiliki kolom "name" dan "email".');
+            fclose($file);
+            return;
+        }
+
+        $importedCount = 0;
+        $skippedCount = 0;
+
+        while (($row = fgetcsv($file, 1000, ',')) !== false) {
+            if (empty($row) || count($row) < 2) continue;
+
+            $name = trim($row[$nameIdx] ?? '');
+            $email = trim($row[$emailIdx] ?? '');
+            $position = $positionIdx !== false ? trim($row[$positionIdx] ?? 'Peserta') : 'Peserta';
+            $phone = $phoneIdx !== false ? trim($row[$phoneIdx] ?? '-') : '-';
+            $plainPassword = $passwordIdx !== false && !empty(trim($row[$passwordIdx] ?? '')) ? trim($row[$passwordIdx]) : 'password123';
+
+            if (empty($name) || empty($email)) {
+                $skippedCount++;
+                continue;
+            }
+
+            // Check duplicate email
+            if (User::where('email', $email)->exists() || QuizRegistration::where('email', $email)->exists()) {
+                $skippedCount++;
+                continue;
+            }
+
+            // Create User
+            $hashedPassword = Hash::make($plainPassword);
+            $user = User::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => $hashedPassword,
+                'role' => 'participant',
+                'is_active' => true,
+            ]);
+
+            // Create approved QuizRegistration
+            QuizRegistration::create([
+                'quiz_id' => $this->selectedQuizId,
+                'name' => $name,
+                'email' => $email,
+                'position' => $position,
+                'phone' => $phone,
+                'password' => $hashedPassword,
+                'status' => 'approved',
+                'user_id' => $user->id,
+            ]);
+
+            $importedCount++;
+        }
+
+        fclose($file);
+
+        ActivityLogger::log('create', "Mengimpor {$importedCount} peserta kuis dari CSV", null);
+
+        session()->flash('success', "Berhasil mengimpor {$importedCount} peserta. (Dilewati: {$skippedCount})");
+        $this->reset(['csvFile', 'selectedQuizId', 'showImportModal']);
+    }
+
     public function render()
     {
         $query = QuizRegistration::with('user')->latest();
@@ -194,8 +335,9 @@ class QuizRegistrationManager extends Component
         }
 
         $registrations = $query->paginate(15);
+        $quizzes = Quiz::orderBy('name')->get();
 
-        return view('livewire.admin.quiz-registration-manager', compact('registrations'))
+        return view('livewire.admin.quiz-registration-manager', compact('registrations', 'quizzes'))
             ->layout('layouts.admin', ['title' => 'Kelola Pendaftar Lomba']);
     }
 }

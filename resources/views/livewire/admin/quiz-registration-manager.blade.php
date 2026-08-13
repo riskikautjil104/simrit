@@ -68,6 +68,23 @@
                     <option value="rejected">Ditolak</option>
                 </select>
             </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                {{-- Download Absensi Button --}}
+                <a href="{{ route('admin.quiz.registrations.export', ['status' => $statusFilter]) }}"
+                   target="_blank"
+                   class="btn btn-secondary btn-sm w-full sm:w-auto flex items-center justify-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Download Absensi
+                </a>
+
+                {{-- Import CSV Button --}}
+                <button type="button" wire:click="$set('showImportModal', true)" class="btn btn-primary btn-sm w-full sm:w-auto flex items-center justify-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Import CSV
+                </button>
+            </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -126,6 +143,11 @@
                                                 </button>
                                             @endif
                                         @endif
+
+                                        {{-- Delete Button --}}
+                                        <button type="button" wire:click="deleteRegistration({{ $reg->id }})" wire:confirm="Hapus peserta ini beserta akun dan semua jawabannya?" class="btn btn-sm btn-danger flex items-center justify-center p-1.5" title="Hapus Peserta">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -220,22 +242,6 @@
                         <span class="text-slate-400">No. WhatsApp</span>
                         <span class="col-span-2 font-bold text-slate-700">{{ $viewingRegDetails->phone }}</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-slate-400">Tanggal Daftar</span>
-                        <span class="col-span-2 text-slate-600">{{ $viewingRegDetails->created_at->format('d M Y H:i') }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-slate-400">Status Pendaftaran</span>
-                        <span class="col-span-2">
-                            @if($viewingRegDetails->status === 'approved')
-                                <span class="badge badge-published">Disetujui</span>
-                            @elseif($viewingRegDetails->status === 'rejected')
-                                <span class="badge badge-archived">Ditolak</span>
-                            @else
-                                <span class="badge badge-draft">Pending</span>
-                            @endif
-                        </span>
-                    </div>
                     
                     @if($viewingRegDetails->rejection_reason)
                         <div class="bg-red-50 p-3 rounded-lg border border-red-100 text-red-800">
@@ -273,6 +279,63 @@
                 <div class="border-t border-slate-100 pt-4 flex justify-end">
                     <button type="button" wire:click="closeDetails" class="btn btn-secondary btn-sm">Tutup</button>
                 </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- CSV Import Modal --}}
+    @if($showImportModal)
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-40 animate-fade-in">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="text-lg font-bold text-slate-800">Import Peserta dari CSV</h3>
+                    <button type="button" wire:click="$set('showImportModal', false)" class="text-slate-400 hover:text-slate-600">✕</button>
+                </div>
+
+                <form wire:submit.prevent="importCsv" class="space-y-4">
+                    {{-- Quiz Selection --}}
+                    <div>
+                        <label for="import-quiz-id" class="form-label font-bold text-slate-700">Pilih Kuis Tujuan</label>
+                        <select id="import-quiz-id" wire:model="selectedQuizId" class="form-select w-full mt-1 text-sm @error('selectedQuizId') is-error @enderror">
+                            <option value="">-- Pilih Kuis --</option>
+                            @foreach($quizzes as $quiz)
+                                <option value="{{ $quiz->id }}">{{ $quiz->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('selectedQuizId') <p class="form-error mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- File Input --}}
+                    <div>
+                        <label for="import-file" class="form-label font-bold text-slate-700">Pilih File CSV</label>
+                        <input type="file" id="import-file" wire:model="csvFile" class="form-input w-full mt-1 text-sm @error('csvFile') is-error @enderror">
+                        @error('csvFile') <p class="form-error mt-1">{{ $message }}</p> @enderror
+                        
+                        <div wire:loading wire:target="csvFile" class="text-xs text-blue-600 mt-1">Uploading file...</div>
+                    </div>
+
+                    {{-- Information and Template --}}
+                    <div class="bg-slate-50 border border-slate-150 rounded-xl p-3.5 text-xs text-slate-600 space-y-2">
+                        <div class="font-semibold text-slate-700 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Panduan Format CSV:
+                        </div>
+                        <p class="leading-relaxed">Header baris pertama harus memiliki kolom <strong class="text-slate-700">name</strong> dan <strong class="text-slate-700">email</strong>.</p>
+                        <p class="leading-relaxed">Kolom opsional lainnya: <strong class="text-slate-700">position</strong>, <strong class="text-slate-700">phone</strong>, <strong class="text-slate-700">password</strong>.</p>
+                        <div class="border-t border-slate-200/60 pt-2 font-mono bg-white p-2 rounded border border-slate-100 select-all overflow-x-auto whitespace-nowrap">
+                            name,email,position,phone,password<br>
+                            Ahmad,ahmad@test.com,Staff,0812345,pass123
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" wire:click="$set('showImportModal', false)" class="btn btn-secondary btn-sm">Batal</button>
+                        <button type="submit" class="btn btn-primary btn-sm flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Import Sekarang
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     @endif

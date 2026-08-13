@@ -64,6 +64,11 @@ class DocumentManager extends Component
         ];
         $this->validate($rules);
 
+        $slug = Str::slug($this->title);
+        if (Document::where('slug', $slug)->when($this->selectedId, fn ($q) => $q->where('id', '!=', $this->selectedId))->exists()) {
+            $slug .= '-' . time();
+        }
+
         if ($this->isCreating) {
             $originalName = $this->file->getClientOriginalName();
             $ext          = $this->file->getClientOriginalExtension();
@@ -73,6 +78,7 @@ class DocumentManager extends Component
             $doc = Document::create([
                 'document_category_id' => $this->document_category_id ?: null,
                 'title'                => $this->title,
+                'slug'                 => $slug,
                 'description'          => $this->description,
                 'file_path'            => $filename,
                 'original_filename'    => $originalName,
@@ -89,6 +95,7 @@ class DocumentManager extends Component
             $data = [
                 'document_category_id' => $this->document_category_id ?: null,
                 'title'                => $this->title,
+                'slug'                 => $slug,
                 'description'          => $this->description,
                 'status'               => $this->status,
             ];

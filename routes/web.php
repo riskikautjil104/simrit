@@ -88,6 +88,10 @@ Route::middleware(['auth', 'active', 'can:access-admin'])->prefix('admin')->name
     Route::get('/quiz', \App\Livewire\Admin\QuizManager::class)->name('quiz.sessions');
     Route::get('/quiz/registrations', \App\Livewire\Admin\QuizRegistrationManager::class)->name('quiz.registrations');
     Route::get('/quiz/questions', \App\Livewire\Admin\QuizQuestionManager::class)->name('quiz.questions');
+
+    // Export / Download
+    Route::get('/quiz/registrations/export', [\App\Http\Controllers\Admin\QuizExportController::class, 'exportAttendance'])->name('quiz.registrations.export');
+    Route::get('/quiz/questions/template', [\App\Http\Controllers\Admin\QuizExportController::class, 'downloadQuestionTemplate'])->name('quiz.questions.template');
 });
 
 // ── Quiz / Lomba 17 Agustus Routes ───────────────────────────

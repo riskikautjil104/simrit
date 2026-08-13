@@ -132,7 +132,10 @@
             <a href="{{ route('public.galleries') }}" class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Galeri</a>
             <a href="{{ route('public.videos') }}"    class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Video</a>
             <a href="{{ route('public.team') }}"      class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Tim IT</a>
-            <a href="{{ route('public.quiz.register') }}" class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8] font-bold text-red-600">Lomba 17-an 🇮🇩</a>
+            <a href="{{ route('public.quiz.register') }}" class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8] font-bold text-red-600 flex items-center gap-1">
+                <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21v11h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+                Lomba 17-an
+            </a>
         </div>
     </div>
 </header>

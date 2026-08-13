@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;
 use App\Services\ActivityLogger;
+use App\Services\QuizQuestionExcelService;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -39,6 +40,10 @@ class QuizQuestionManager extends Component
     public $image;
     public $existingImage;
 
+    public bool   $showImportModal = false;
+    public ?int   $importQuizId    = null;
+    public $importFile;
+
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterQuizId() { $this->resetPage(); }
 
@@ -48,6 +53,58 @@ class QuizQuestionManager extends Component
         $this->resetForm();
         $this->quiz_id    = $this->filterQuizId;  // pre-fill dengan kuis aktif di filter
         $this->isCreating = true;
+    }
+
+    public function openImport(): void
+    {
+        $this->importQuizId    = $this->filterQuizId;
+        $this->importFile      = null;
+        $this->showImportModal = true;
+    }
+
+    public function closeImport(): void
+    {
+        $this->showImportModal = false;
+        $this->importFile      = null;
+    }
+
+    public function importQuestions(QuizQuestionExcelService $excelService): void
+    {
+        $this->validate([
+            'importFile'   => 'required|file|mimes:xlsx,xls|max:5120',
+            'importQuizId' => 'nullable|exists:quizzes,id',
+        ], [
+            'importFile.required' => 'Pilih file Excel terlebih dahulu.',
+            'importFile.mimes'    => 'File harus berformat .xlsx atau .xls.',
+        ]);
+
+        $result = $excelService->import(
+            $this->importFile,
+            $this->importQuizId ?: null,
+            auth()->id()
+        );
+
+        if ($result['imported'] > 0) {
+            ActivityLogger::log(
+                'create',
+                "Import {$result['imported']} soal kuis dari Excel",
+                null
+            );
+        }
+
+        if (! empty($result['errors'])) {
+            session()->flash('import_errors', $result['errors']);
+        }
+
+        if ($result['imported'] > 0) {
+            session()->flash('success', "{$result['imported']} soal berhasil diimpor dari Excel.");
+        } elseif (empty($result['errors'])) {
+            session()->flash('error', 'Tidak ada soal yang berhasil diimpor.');
+        } else {
+            session()->flash('error', 'Import gagal. Periksa error di bawah.');
+        }
+
+        $this->closeImport();
     }
 
     public function edit(int $id): void
@@ -163,6 +220,8 @@ class QuizQuestionManager extends Component
         $this->time_limit     = '';
         $this->image          = null;
         $this->existingImage  = null;
+        $this->showImportModal = false;
+        $this->importFile      = null;
     }
 
     public function render()

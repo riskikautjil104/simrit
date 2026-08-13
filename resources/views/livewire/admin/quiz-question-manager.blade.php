@@ -121,6 +121,67 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-medium">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if(session('import_errors'))
+            <div class="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-sm">
+                <p class="font-bold mb-2">Beberapa baris gagal diimpor:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach(session('import_errors') as $row => $message)
+                        <li>{{ $message }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        {{-- Import Modal --}}
+        @if($showImportModal)
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">Import Soal dari Excel</h3>
+                        <button type="button" wire:click="closeImport" class="text-slate-400 hover:text-slate-600">&times;</button>
+                    </div>
+
+                    <form wire:submit.prevent="importQuestions" class="space-y-4">
+                        <div>
+                            <label class="form-label font-bold">Masukkan ke Kuis <span class="text-slate-400 font-normal">(opsional)</span></label>
+                            <select wire:model="importQuizId" class="form-select">
+                                <option value="">— Tidak terikat kuis tertentu —</option>
+                                @foreach($quizzes as $quiz)
+                                    <option value="{{ $quiz->id }}">{{ $quiz->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('importQuizId') <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label class="form-label font-bold">File Excel (.xlsx / .xls)</label>
+                            <input type="file" wire:model="importFile" accept=".xlsx,.xls"
+                                   class="form-input text-sm">
+                            <p class="form-hint text-xs mt-1">
+                                Unduh template dulu, isi sesuai format, lalu upload di sini.
+                            </p>
+                            @error('importFile') <p class="form-error">{{ $message }}</p> @enderror
+                            <div wire:loading wire:target="importFile" class="text-xs text-slate-400 mt-1">Memuat file...</div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                            <button type="button" wire:click="closeImport" class="btn btn-secondary btn-sm">Batal</button>
+                            <button type="submit" class="btn btn-primary btn-sm" wire:loading.attr="disabled" wire:target="importQuestions,importFile">
+                                <span wire:loading.remove wire:target="importQuestions">Import Soal</span>
+                                <span wire:loading wire:target="importQuestions">Mengimpor...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         <div class="space-y-4">
             {{-- Header controls --}}
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -140,6 +201,15 @@
                 <button type="button" wire:click="create" class="btn btn-primary btn-sm w-full sm:w-auto flex items-center justify-center gap-1">
                     <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Tambah Soal
+                </button>
+                <a href="{{ route('admin.quiz.questions.template') }}"
+                   class="btn btn-secondary btn-sm w-full sm:w-auto flex items-center justify-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Template Excel
+                </a>
+                <button type="button" wire:click="openImport" class="btn btn-secondary btn-sm w-full sm:w-auto flex items-center justify-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Import Excel
                 </button>
             </div>
 
