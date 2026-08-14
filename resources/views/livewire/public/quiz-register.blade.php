@@ -125,7 +125,7 @@
         </div>
 
         {{-- Registration Form --}}
-        <div class="md:col-span-7">
+        {{-- <div class="md:col-span-7">
             <div class="bg-[#FDF8ED] border border-[#E3D3AC] rounded-2xl p-6 sm:p-8 shadow-sm relative">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-lg font-bold text-[#5A1414]"
@@ -223,8 +223,118 @@
                     </form>
                 @endif
             </div>
+        </div> --}}
+        <div class="md:col-span-7">
+            <div class="bg-[#FDF8ED] border border-[#E3D3AC] rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+
+                {{-- Dekorasi --}}
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-[#C1272D]/5 rounded-full"></div>
+                <div class="absolute -right-5 -bottom-10 w-24 h-24 bg-[#D9B36C]/10 rounded-full"></div>
+
+                <div class="relative">
+
+                    {{-- Header --}}
+                    <div class="flex items-center justify-between mb-6 gap-4">
+                        <h2 class="text-lg font-bold text-[#5A1414]"
+                            style="font-family: Georgia, 'Times New Roman', serif;">
+                            Pendaftaran Peserta
+                        </h2>
+
+                        <span
+                            class="font-mono text-[10px] tracking-widest text-[#8A6A2F] uppercase border border-[#D9B36C] rounded px-2 py-1 whitespace-nowrap">
+                            Edisi 17-08-2026
+                        </span>
+                    </div>
+
+                    {{-- Status Pendaftaran Ditutup --}}
+                    <div class="rounded-2xl border border-[#E3B8B8] bg-[#FFF5F5] p-6 sm:p-7">
+
+                        <div class="flex flex-col items-center text-center">
+
+                            {{-- Icon --}}
+                            <div class="w-16 h-16 rounded-full bg-[#C1272D]/10 flex items-center justify-center mb-5">
+                                <svg class="w-8 h-8 text-[#C1272D]" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                        d="M12 9v3.75m0 3.25h.01M10.29 3.86l-8.1 14A2 2 0 003.92 21h16.16a2 2 0 001.73-3.14l-8.1-14a2 2 0 00-3.42 0z" />
+                                </svg>
+                            </div>
+
+                            {{-- Judul --}}
+                            <h3 class="text-xl sm:text-2xl font-bold text-[#8B1E1E] mb-2"
+                                style="font-family: Georgia, 'Times New Roman', serif;">
+                                Maaf, Pendaftaran Sudah Ditutup
+                            </h3>
+
+                            {{-- Deskripsi --}}
+                            <p class="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+                                Pendaftaran peserta Lomba 17 Agustus 2026 telah resmi ditutup.
+                                Terima kasih atas antusiasme dan partisipasi seluruh peserta.
+                            </p>
+
+                            {{-- Divider --}}
+                            <div class="w-full border-t border-dashed border-[#D9B36C] my-6"></div>
+
+                            {{-- Info peserta lama --}}
+                            <div class="w-full rounded-xl bg-white border border-[#E3D3AC] p-5 text-left">
+
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="w-9 h-9 rounded-lg bg-[#D9B36C]/15 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 text-[#8A6A2F]" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                                d="M15 7a3 3 0 11-6 0 3 3 0 016 0zM4.5 21a7.5 7.5 0 0115 0M19 8v6m3-3h-6" />
+                                        </svg>
+                                    </div>
+
+                                    <div>
+                                        <p class="font-bold text-[#5A1414] text-sm mb-1">
+                                            Sudah memiliki akun?
+                                        </p>
+
+                                        <p class="text-sm text-slate-600 leading-relaxed">
+                                            Bagi peserta yang sudah melakukan registrasi sebelumnya,
+                                            silakan login menggunakan
+                                            <strong>email dan password</strong> yang telah dibuat
+                                            saat proses registrasi.
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {{-- Tombol Login --}}
+                            <div class="mt-6 w-full">
+                                <a href="{{ route('participant.login') }}"
+                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2
+                                   bg-[#C1272D] hover:bg-[#8B1E1E]
+                                   text-white font-bold text-sm
+                                   px-6 py-3 rounded-xl
+                                   transition-all shadow-md hover:shadow-lg">
+
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4
+                                       M10 17l5-5-5-5
+                                       M15 12H3" />
+                                    </svg>
+
+                                    Login Peserta
+                                </a>
+                            </div>
+
+                            {{-- Catatan --}}
+                            <p class="mt-4 text-[11px] text-slate-500">
+                                Gunakan akun yang telah didaftarkan sebelumnya untuk mengakses
+                                dashboard peserta pada hari pelaksanaan lomba.
+                            </p>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
-        
     </div>
 
     {{-- Bunting / umbul-umbul strip penutup --}}
