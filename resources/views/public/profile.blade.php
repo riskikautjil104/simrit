@@ -19,9 +19,15 @@
             {{-- Content Area --}}
             <article class="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-6 sm:p-8 shadow-sm">
                 @if($page->featured_image)
-                    <div class="mb-6 rounded-xl overflow-hidden aspect-video max-h-96 w-full">
-                        <img src="{{ asset('storage/'.$page->featured_image) }}" alt="Ilustrasi {{ $page->title }}" class="object-cover w-full h-full">
-                    </div>
+                    @if($page->slug === 'struktur-organisasi')
+                        <div class="mb-6 rounded-xl overflow-auto bg-slate-50 border border-slate-100 p-3">
+                            <img src="{{ asset('storage/'.$page->featured_image) }}" alt="Ilustrasi {{ $page->title }}" class="w-full h-auto object-contain rounded-lg">
+                        </div>
+                    @else
+                        <div class="mb-6 rounded-xl overflow-hidden aspect-video max-h-96 w-full">
+                            <img src="{{ asset('storage/'.$page->featured_image) }}" alt="Ilustrasi {{ $page->title }}" class="object-cover w-full h-full">
+                        </div>
+                    @endif
                 @endif
                 <div class="prose max-w-none text-slate-600">
                     {!! $page->content !!}

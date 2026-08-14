@@ -95,6 +95,27 @@
                         @endforelse
                     </div>
                 </div>
+
+                @if($mediaPartners->isNotEmpty())
+                <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-[#1e3a8a] font-bold text-xs uppercase tracking-wider mb-4">Media Partner</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        @foreach($mediaPartners as $partner)
+                            <a
+                                href="{{ route('public.media-partners.show', $partner->slug) }}"
+                                title="{{ $partner->description ? $partner->name.' — '.$partner->description : $partner->name }}"
+                                class="flex items-center justify-center bg-slate-50 hover:bg-blue-50 border border-slate-100 rounded-lg aspect-video p-2 transition-colors"
+                            >
+                                @if($partner->logo)
+                                    <img src="{{ asset('storage/'.$partner->logo) }}" alt="{{ $partner->name }}" class="max-h-10 max-w-full object-contain">
+                                @else
+                                    <span class="text-slate-400 font-bold text-[10px] text-center">{{ $partner->name }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </aside>
         </div>
     </section>

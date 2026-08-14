@@ -67,6 +67,7 @@
             {{-- Desktop Nav --}}
             <nav class="hidden lg:flex items-center gap-1" aria-label="Navigasi utama">
                 @php
+                    $publicPortals = \App\Models\Portal::published()->get();
                     $navLinks = [
                         ['href' => route('home'),               'label' => 'Beranda'],
                         ['href' => route('public.profile','sejarah'), 'label' => 'Profil',   'dropdown' => [
@@ -76,6 +77,15 @@
                             ['href' => route('public.profile','tugas-fungsi'),       'label' => 'Tugas & Fungsi'],
                             ['href' => route('public.profile','sarana-prasarana'),   'label' => 'Sarana & Prasarana'],
                         ]],
+                        ...($publicPortals->isNotEmpty() ? [[
+                            'href' => '#',
+                            'label' => 'Portal',
+                            'dropdown' => $publicPortals->map(fn($portal) => [
+                                'href' => $portal->link,
+                                'label' => $portal->name,
+                                'external' => true,
+                            ])->all(),
+                        ]] : []),
                         ['href' => route('public.services'),    'label' => 'Layanan'],
                         ['href' => route('public.news'),        'label' => 'Berita'],
                         ['href' => route('public.events'),      'label' => 'Kegiatan'],
@@ -96,7 +106,7 @@
                             <div class="absolute top-full left-0 pt-1 w-52 hidden group-hover:block z-50">
                                 <div class="bg-white rounded-xl shadow-xl border border-slate-100 py-1.5">
                                     @foreach($link['dropdown'] as $sub)
-                                        <a href="{{ $sub['href'] }}" class="block px-4 py-2 text-sm text-slate-600 hover:text-[#1d4ed8] hover:bg-blue-50 transition-colors">{{ $sub['label'] }}</a>
+                                        <a href="{{ $sub['href'] }}" @if(!empty($sub['external'])) target="_blank" rel="noopener" @endif class="block px-4 py-2 text-sm text-slate-600 hover:text-[#1d4ed8] hover:bg-blue-50 transition-colors">{{ $sub['label'] }}</a>
                                     @endforeach
                                 </div>
                             </div>
@@ -125,6 +135,12 @@
             <a href="{{ route('public.profile','visi-misi') }}" class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Visi & Misi</a>
             <a href="{{ route('public.profile','struktur-organisasi') }}" class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Struktur Organisasi</a>
             <a href="{{ route('public.profile','tugas-fungsi') }}" class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Tugas & Fungsi</a>
+            @if(isset($publicPortals) && $publicPortals->isNotEmpty())
+                <div class="px-3 pt-3 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Portal</div>
+                @foreach($publicPortals as $portal)
+                    <a href="{{ $portal->link }}" target="_blank" rel="noopener" class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">{{ $portal->name }}</a>
+                @endforeach
+            @endif
             <a href="{{ route('public.services') }}"  class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Layanan IT</a>
             <a href="{{ route('public.news') }}"      class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Berita</a>
             <a href="{{ route('public.events') }}"    class="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-blue-50 hover:text-[#1d4ed8]">Kegiatan</a>

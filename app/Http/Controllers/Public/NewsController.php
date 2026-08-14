@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\Category;
+use App\Models\MediaPartner;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -36,6 +37,7 @@ class NewsController extends Controller
         $related = News::published()->where('id', '!=', $news->id)
             ->where('category_id', $news->category_id)
             ->latest('published_at')->limit(3)->get();
-        return view('public.news.show', compact('news', 'related'));
+        $mediaPartners = MediaPartner::published()->get();
+        return view('public.news.show', compact('news', 'related', 'mediaPartners'));
     }
 }

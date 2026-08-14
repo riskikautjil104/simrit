@@ -1,45 +1,29 @@
 import './bootstrap';
+import { initializeTiptapEditors, teardownTiptapEditors } from './tiptap-editor';
 
 // ── Mobile sidebar toggle ──────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    const initializeNewsShortcuts = () => {
-        document.querySelectorAll('#news-content-editor').forEach(editor => {
-            if (editor.dataset.shortcutsInitialized === 'true') return;
-            editor.dataset.shortcutsInitialized = 'true';
-            editor.addEventListener('keydown', event => {
-                if (!(event.ctrlKey || event.metaKey)) return;
+    // ── Tiptap rich text editors (e.g. Berita content) ───
+    initializeTiptapEditors();
+    document.addEventListener('livewire:navigated', () => initializeTiptapEditors());
+    document.addEventListener('livewire:morphed', () => initializeTiptapEditors());
 
-                const start = editor.selectionStart;
-                const end = editor.selectionEnd;
-                const selected = editor.value.slice(start, end);
-                const key = event.key.toLowerCase();
-
-                if (key === 'k') {
-                    event.preventDefault();
-                    if (!selected) return;
-                    const url = window.prompt('Masukkan URL tautan:', 'https://');
-                    if (!url) return;
-                    editor.setRangeText(`<a href="${url}" target="_blank" rel="noopener">${selected}</a>`, start, end, 'select');
-                    editor.dispatchEvent(new Event('input', { bubbles: true }));
-                    return;
-                }
-
-                const tags = { b: ['<strong>', '</strong>'], i: ['<em>', '</em>'], u: ['<u>', '</u>'] };
-                const tag = tags[key];
-                if (!tag || !selected) return;
-
-                event.preventDefault();
-
-                editor.setRangeText(`${tag[0]}${selected}${tag[1]}`, start, end, 'select');
-                editor.dispatchEvent(new Event('input', { bubbles: true }));
+    new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.removedNodes.forEach((node) => {
+                if (node.nodeType !== 1) return;
+                if (node.matches?.('[data-tiptap]')) teardownTiptapEditors(node.parentNode ?? document);
+                node.querySelectorAll?.('[data-tiptap]').forEach((el) => {
+                    if (el._tiptapEditor) {
+                        el._tiptapEditor.destroy();
+                        delete el._tiptapEditor;
+                        delete el.dataset.tiptapInitialized;
+                    }
+                });
             });
         });
-    };
-
-    initializeNewsShortcuts();
-    document.addEventListener('livewire:navigated', initializeNewsShortcuts);
-    document.addEventListener('livewire:morphed', initializeNewsShortcuts);
-    new MutationObserver(initializeNewsShortcuts).observe(document.body, { childList: true, subtree: true });
+        initializeTiptapEditors();
+    }).observe(document.body, { childList: true, subtree: true });
 
     const toggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('admin-sidebar');

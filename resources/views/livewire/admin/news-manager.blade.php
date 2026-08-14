@@ -35,9 +35,19 @@
                         </div>
 
                         <div>
-                            <label for="news-content-editor" class="form-label">Isi Lengkap Berita</label>
-                            <textarea id="news-content-editor" wire:key="news-content-{{ $isCreating ? 'create' : ($selectedNewsId ?? 'edit') }}" wire:model.live="content" rows="16" class="form-textarea font-mono text-sm @error('content') is-error @enderror" placeholder="Tulis isi berita di sini..."></textarea>
-                            <p class="form-hint">Isi berita wajib diisi. Pilih teks lalu gunakan Ctrl/Cmd+B (tebal), Ctrl/Cmd+I (miring), Ctrl/Cmd+U (garis bawah), atau Ctrl/Cmd+K (tautan).</p>
+                            <label for="news-content-source" class="form-label">Isi Lengkap Berita</label>
+                            <div
+                                data-tiptap
+                                data-placeholder="Tulis isi berita di sini..."
+                                wire:ignore
+                                wire:key="news-content-{{ $isCreating ? 'create' : ($selectedNewsId ?? 'edit') }}"
+                                class="tiptap-editor @error('content') is-error @enderror"
+                            >
+                                <div class="tiptap-toolbar" role="toolbar" aria-label="Alat pemformatan teks"></div>
+                                <div class="tiptap-content"></div>
+                                <textarea id="news-content-source" class="tiptap-source" wire:model.live="content" hidden></textarea>
+                            </div>
+                            <p class="form-hint">Isi berita wajib diisi. Gunakan toolbar di atas untuk memformat teks, atau shortcut Ctrl/Cmd+B (tebal), Ctrl/Cmd+I (miring), Ctrl/Cmd+U (garis bawah), Ctrl/Cmd+K (tautan).</p>
                             @error('content') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>

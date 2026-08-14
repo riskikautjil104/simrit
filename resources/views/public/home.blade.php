@@ -22,20 +22,52 @@
                         </a>
                     </div>
                 </div>
-                <div class="hidden lg:block relative justify-self-center">
-                    {{-- Graphic placeholder --}}
-                    <div class="w-80 h-80 rounded-full bg-white/10 backdrop-blur-2xl border border-white/20 absolute -top-10 -left-10 animate-pulse"></div>
-                    <div class="w-96 h-96 rounded-full bg-gradient-to-tr from-emerald-500/20 to-blue-500/20 backdrop-blur-3xl border border-white/10 flex items-center justify-center p-8 shadow-2xl relative">
-                        <div class="text-center">
-                            <div class="text-7xl font-black tracking-widest text-white/90">SIRSIT</div>
-                            <div class="text-xs uppercase tracking-widest text-emerald-400 font-bold mt-2">RSUD Dr. H. Chasan Boesoirie</div>
-                        </div>
+                <div class="hidden lg:block relative justify-self-end w-full max-w-xl">
+                    <div class="absolute -inset-10 rounded-full bg-cyan-300/20 blur-3xl"></div>
+                    <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full border border-white/20 bg-white/5"></div>
+                    <div class="absolute -left-8 bottom-4 w-40 h-40 rounded-full border border-emerald-300/30 bg-emerald-300/10"></div>
+                    <div class="relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 p-3 shadow-2xl backdrop-blur-md">
+                        <img
+                            src="{{ asset('logo/banner.png') }}"
+                            alt="Banner RSUD Dr. H. Chasan Boesoirie"
+                            class="w-full rounded-[1.5rem] object-cover shadow-xl"
+                        >
                     </div>
                 </div>
             </div>
         </div>
         <div class="absolute -bottom-2 -left-2 right-0 h-16 bg-[#f8fafc] rounded-t-[50%]"></div>
     </section>
+
+    {{-- Portal Section --}}
+    @if($portals->isNotEmpty())
+    <section class="py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Portal aplikasi">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+            <div>
+                <span class="text-xs font-bold text-[#1d4ed8] uppercase tracking-wider">Akses Cepat</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-[#1e3a8a] tracking-tight mt-2">Portal Aplikasi</h2>
+                <p class="text-slate-500 text-sm mt-2 max-w-2xl">Akses aplikasi dan sistem informasi resmi yang digunakan di lingkungan RSUD Dr. H. Chasan Boesoirie.</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            @foreach($portals as $portal)
+                <a href="{{ $portal->link }}" target="_blank" rel="noopener" class="group bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#1d4ed8] flex items-center justify-center font-black text-sm mb-4 group-hover:bg-[#1d4ed8] group-hover:text-white">
+                        {{ $portal->icon ?: strtoupper(substr($portal->name, 0, 2)) }}
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 group-hover:text-[#1d4ed8]">{{ $portal->name }}</h3>
+                    @if($portal->description)
+                        <p class="text-slate-500 text-xs leading-relaxed mt-2 line-clamp-3">{{ $portal->description }}</p>
+                    @endif
+                    <div class="mt-4 text-xs font-bold text-[#1d4ed8] inline-flex items-center gap-1">
+                        Buka Portal
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3h7m0 0v7m0-7L10 14m-3-4H5a2 2 0 00-2 2v7a2 2 0 002 2h7a2 2 0 002-2v-2"/></svg>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
 
     {{-- Short Profile & Vision-Mission --}}
     <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Profil Singkat">
@@ -269,4 +301,34 @@
             </div>
         </div>
     </section>
+
+    {{-- Media Partner Section --}}
+    @if($mediaPartners->isNotEmpty())
+    <section class="py-14 bg-white border-t border-slate-100" aria-label="Media Partner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-xs font-bold text-[#1d4ed8] uppercase tracking-wider">Kerja Sama</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-[#1e3a8a] tracking-tight mt-2">Media Partner</h2>
+                <p class="text-slate-500 text-sm mt-2">Mitra media yang mendukung publikasi informasi kami.</p>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 items-stretch">
+                @foreach($mediaPartners as $partner)
+                    <a
+                        href="{{ route('public.media-partners.show', $partner->slug) }}"
+                        title="{{ $partner->description ? $partner->name.' — '.$partner->description : $partner->name }}"
+                        class="group flex flex-col items-center justify-center gap-2 bg-slate-50 hover:bg-blue-50 border border-slate-100 rounded-xl p-4 transition-colors"
+                    >
+                        <div class="w-full aspect-video flex items-center justify-center">
+                            @if($partner->logo)
+                                <img src="{{ asset('storage/'.$partner->logo) }}" alt="{{ $partner->name }}" class="max-h-14 max-w-full object-contain grayscale group-hover:grayscale-0 transition-all">
+                            @else
+                                <span class="text-slate-400 font-bold text-xs text-center">{{ $partner->name }}</span>
+                            @endif
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 </x-public-layout>

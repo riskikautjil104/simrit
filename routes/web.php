@@ -11,6 +11,8 @@ use App\Http\Controllers\Public\GalleryController;
 use App\Http\Controllers\Public\VideoController;
 use App\Http\Controllers\Public\ServiceController;
 use App\Http\Controllers\Public\TeamController;
+use App\Http\Controllers\Public\MediaPartnerController;
+use App\Models\MediaPartner;
 use App\Models\News;
 use App\Models\Page;
 use Illuminate\Support\Facades\Response;
@@ -30,6 +32,7 @@ Route::get('/galeri', [GalleryController::class, 'index'])->name('public.galleri
 Route::get('/galeri/{slug}', [GalleryController::class, 'show'])->name('public.galleries.show');
 Route::get('/video', [VideoController::class, 'index'])->name('public.videos');
 Route::get('/tim', [TeamController::class, 'index'])->name('public.team');
+Route::get('/media-partner/{slug}', [MediaPartnerController::class, 'show'])->name('public.media-partners.show');
 Route::get('/logo', fn() => view('public.logo'))->name('public.logo');
 Route::get('/sitemap.xml', function () {
     $urls = collect([
@@ -50,6 +53,10 @@ Route::get('/sitemap.xml', function () {
     News::published()->get(['slug', 'updated_at'])->each(fn($news) => $urls->push([
         'loc' => route('public.news.show', $news->slug),
         'lastmod' => $news->updated_at->toDateString(),
+    ]));
+    MediaPartner::published()->get(['slug', 'updated_at'])->each(fn($partner) => $urls->push([
+        'loc' => route('public.media-partners.show', $partner->slug),
+        'lastmod' => $partner->updated_at->toDateString(),
     ]));
 
     return Response::make(view('public.sitemap', compact('urls'))->render(), 200, ['Content-Type' => 'application/xml']);
@@ -74,8 +81,10 @@ Route::middleware(['auth', 'active', 'can:access-admin'])->prefix('admin')->name
     Route::get('/galleries', \App\Livewire\Admin\GalleryManager::class)->name('galleries');
     Route::get('/videos', \App\Livewire\Admin\VideoManager::class)->name('videos');
     Route::get('/media', \App\Livewire\Admin\MediaManager::class)->name('media');
+    Route::get('/portals', \App\Livewire\Admin\PortalManager::class)->name('portals');
     Route::get('/services', \App\Livewire\Admin\ServiceManager::class)->name('services');
     Route::get('/team', \App\Livewire\Admin\TeamManager::class)->name('team');
+    Route::get('/media-partners', \App\Livewire\Admin\MediaPartnerManager::class)->name('media-partners');
 
     // Superadmin-only routes
     Route::middleware('can:superadmin-only')->group(function () {
@@ -92,6 +101,9 @@ Route::middleware(['auth', 'active', 'can:access-admin'])->prefix('admin')->name
     // Export / Download
     Route::get('/quiz/registrations/export', [\App\Http\Controllers\Admin\QuizExportController::class, 'exportAttendance'])->name('quiz.registrations.export');
     Route::get('/quiz/questions/template', [\App\Http\Controllers\Admin\QuizExportController::class, 'downloadQuestionTemplate'])->name('quiz.questions.template');
+
+    // Rich text editor (Tiptap) inline image upload
+    Route::post('/editor/upload-image', [\App\Http\Controllers\Admin\EditorUploadController::class, 'uploadImage'])->name('editor.upload-image');
 });
 
 // ── Quiz / Lomba 17 Agustus Routes ───────────────────────────
