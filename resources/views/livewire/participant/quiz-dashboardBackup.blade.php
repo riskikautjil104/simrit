@@ -234,25 +234,22 @@
                         </div>
 
                         {{-- Navigation --}}
-                       {{-- Navigation --}}
-<div class="flex justify-between items-center border-t border-slate-100 pt-6">
-    <button type="button"
-            class="btn btn-secondary btn-sm opacity-40 cursor-not-allowed"
-            disabled
-            title="Soal sebelumnya tidak bisa diakses lagi">
-        ← Sebelumnya
-    </button>
-    @if($currentIndex === $questions->count() - 1)
-        <button type="button" wire:click="startSubmit"
-                class="btn btn-primary btn-sm bg-red-600 hover:bg-red-700 text-white">
-            Kirim Jawaban Akhir
-        </button>
-    @else
-        <button type="button" wire:click="nextQuestion" class="btn btn-secondary btn-sm">
-            Berikutnya →
-        </button>
-    @endif
-</div>
+                        <div class="flex justify-between items-center border-t border-slate-100 pt-6">
+                            <button type="button" wire:click="prevQuestion"
+                                    class="btn btn-secondary btn-sm" {{ $currentIndex === 0 ? 'disabled' : '' }}>
+                                ← Sebelumnya
+                            </button>
+                            @if($currentIndex === $questions->count() - 1)
+                                <button type="button" wire:click="startSubmit"
+                                        class="btn btn-primary btn-sm bg-red-600 hover:bg-red-700 text-white">
+                                    Kirim Jawaban Akhir
+                                </button>
+                            @else
+                                <button type="button" wire:click="nextQuestion" class="btn btn-secondary btn-sm">
+                                    Berikutnya →
+                                </button>
+                            @endif
+                        </div>
                     </div>
                 @else
                     <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400">
@@ -286,30 +283,22 @@
                     </div>
 
                     {{-- Jump Grid --}}
-                   {{-- Jump Grid --}}
-@if($questions)
-    <div class="grid grid-cols-5 gap-2">
-        @foreach($questions as $idx => $quest)
-            @php
-                $hasAnswered = isset($answers[$quest->id]);
-                $isLocked    = $idx < $currentIndex; // soal yang udah kelewatan, gak bisa diklik lagi
-            @endphp
-            <button type="button"
-                    @if(!$isLocked) wire:click="selectIndex({{ $idx }})" @endif
-                    @if($isLocked) disabled @endif
-                    class="w-full aspect-square rounded-xl border flex items-center justify-center text-xs font-bold transition-all
-                        {{ $currentIndex === $idx
-                            ? 'border-red-600 bg-red-50 text-red-600 ring-2 ring-red-100'
-                            : ($isLocked
-                                ? 'border-slate-200 bg-slate-100 text-slate-300 cursor-not-allowed opacity-50'
-                                : ($hasAnswered
-                                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                                    : 'border-slate-200 hover:bg-slate-50 text-slate-500')) }}">
-                {{ $idx + 1 }}
-            </button>
-        @endforeach
-    </div>
-@endif
+                    @if($questions)
+                        <div class="grid grid-cols-5 gap-2">
+                            @foreach($questions as $idx => $quest)
+                                @php $hasAnswered = isset($answers[$quest->id]); @endphp
+                                <button type="button" wire:click="selectIndex({{ $idx }})"
+                                        class="w-full aspect-square rounded-xl border flex items-center justify-center text-xs font-bold transition-all
+                                            {{ $currentIndex === $idx
+                                                ? 'border-red-600 bg-red-50 text-red-600 ring-2 ring-red-100'
+                                                : ($hasAnswered
+                                                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                                                    : 'border-slate-200 hover:bg-slate-50 text-slate-500') }}">
+                                    {{ $idx + 1 }}
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
 
                     <div class="pt-2 border-t border-slate-100 space-y-2">
                         <button type="button" wire:click="startSubmit"
