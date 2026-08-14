@@ -45,7 +45,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-[#f8fafc] text-slate-800">
+<body class="bg-[#f8fafc] text-slate-800 pb-24 lg:pb-0">
 
 {{-- ── Public Navigation ──────────────────────────────────── --}}
 <header class="public-nav" role="banner">
@@ -156,6 +156,39 @@
     </div>
 </header>
 
+{{-- ── Mobile Bottom Navigator ───────────────────────────── --}}
+<nav class="fixed inset-x-3 bottom-3 z-[150] lg:hidden" aria-label="Navigasi cepat mobile">
+    <div class="grid grid-cols-5 items-center rounded-2xl border border-slate-200/80 bg-white/95 px-2 py-2 shadow-2xl backdrop-blur-md">
+        <a href="{{ route('home') }}" class="flex flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-[10px] font-bold {{ request()->routeIs('home') ? 'text-[#1d4ed8] bg-blue-50' : 'text-slate-500' }}">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-8 9 8M5 10v10h14V10M9 20v-6h6v6"/></svg>
+            <span>Home</span>
+        </a>
+        <a href="{{ route('public.news') }}" class="flex flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-[10px] font-bold {{ request()->routeIs('public.news*') ? 'text-[#1d4ed8] bg-blue-50' : 'text-slate-500' }}">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2M7 8h6v4H7V8zm0 8h6"/></svg>
+            <span>Berita</span>
+        </a>
+        @if(isset($publicPortals) && $publicPortals->isNotEmpty())
+            <a href="{{ $publicPortals->first()->link }}" target="_blank" rel="noopener" class="relative -mt-7 flex flex-col items-center gap-1 rounded-2xl bg-gradient-to-br from-[#1d4ed8] to-[#059669] px-2 py-3 text-[10px] font-bold text-white shadow-lg">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 010 5.656l-3 3a4 4 0 01-5.656-5.656l1.172-1.172m3.536 3.536l4.242-4.242m-1.414 5.656l1.172-1.172a4 4 0 00-5.656-5.656l-3 3"/></svg>
+                <span>Portal</span>
+            </a>
+        @else
+            <a href="{{ route('public.services') }}" class="relative -mt-7 flex flex-col items-center gap-1 rounded-2xl bg-gradient-to-br from-[#1d4ed8] to-[#059669] px-2 py-3 text-[10px] font-bold text-white shadow-lg">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                <span>Layanan</span>
+            </a>
+        @endif
+        <a href="{{ route('public.galleries') }}" class="flex flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-[10px] font-bold {{ request()->routeIs('public.galleries*') ? 'text-[#1d4ed8] bg-blue-50' : 'text-slate-500' }}">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Galeri</span>
+        </a>
+        <button id="bottom-menu-btn" type="button" class="flex flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-[10px] font-bold text-slate-500" aria-label="Buka menu lengkap" aria-expanded="false" aria-controls="mobile-menu">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span>Menu</span>
+        </button>
+    </div>
+</nav>
+
 {{-- ── Page Content ──────────────────────────────────────── --}}
 <main id="main-content">
     {{ $slot }}
@@ -225,17 +258,23 @@
     </div>
 </footer>
 
-<script>
-    // Mobile menu toggle
-    const mobileBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileBtn && mobileMenu) {
-        mobileBtn.addEventListener('click', () => {
-            const expanded = mobileMenu.classList.toggle('hidden');
-            mobileBtn.setAttribute('aria-expanded', !expanded);
-        });
-    }
-</script>
+	<script>
+	    // Mobile menu toggle
+	    const mobileBtn = document.getElementById('mobile-menu-btn');
+	    const bottomMenuBtn = document.getElementById('bottom-menu-btn');
+	    const mobileMenu = document.getElementById('mobile-menu');
+	    const toggleMobileMenu = () => {
+	        if (!mobileMenu) return;
+	            const expanded = mobileMenu.classList.toggle('hidden');
+	        mobileBtn?.setAttribute('aria-expanded', !expanded);
+	        bottomMenuBtn?.setAttribute('aria-expanded', !expanded);
+	    };
+
+	    if (mobileBtn && mobileMenu) {
+	        mobileBtn.addEventListener('click', toggleMobileMenu);
+	    }
+	    bottomMenuBtn?.addEventListener('click', toggleMobileMenu);
+	</script>
 
 @livewireScripts
 </body>
