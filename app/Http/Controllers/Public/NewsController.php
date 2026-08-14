@@ -34,9 +34,28 @@ class NewsController extends Controller
         $news    = News::published()->where('slug', $slug)->with('category', 'creator')->firstOrFail();
         News::whereKey($news->id)->increment('views');
         $news->refresh();
-        $related = News::published()->where('id', '!=', $news->id)
-            ->where('category_id', $news->category_id)
-            ->latest('published_at')->limit(3)->get();
+        $relatedQuery = News::published()
+            ->where('id', '!=', $news->id)
+            ->latest('published_at');
+
+        if ($news->category_id) {
+            $related = (clone $relatedQuery)
+                ->where('category_id', $news->category_id)
+                ->limit(3)
+                ->get();
+
+            if ($related->count() < 3) {
+                $fallback = (clone $relatedQuery)
+                    ->whereNotIn('id', $related->pluck('id')->push($news->id))
+                    ->limit(3 - $related->count())
+                    ->get();
+
+                $related = $related->concat($fallback);
+            }
+        } else {
+            $related = $relatedQuery->limit(3)->get();
+        }
+
         $mediaPartners = MediaPartner::published()->get();
         return view('public.news.show', compact('news', 'related', 'mediaPartners'));
     }

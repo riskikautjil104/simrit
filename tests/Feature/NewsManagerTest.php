@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\News;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,5 +96,56 @@ class NewsManagerTest extends TestCase
             ->set('content', '')
             ->call('save')
             ->assertHasErrors(['content' => 'required']);
+    }
+
+    public function test_news_detail_shows_related_news_from_same_category()
+    {
+        $category = Category::create(['name' => 'SIMRS', 'slug' => 'simrs']);
+        $mainNews = News::create([
+            'category_id' => $category->id,
+            'title' => 'Berita Utama SIMRS',
+            'slug' => 'berita-utama-simrs',
+            'content' => '<p>Konten utama.</p>',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+        News::create([
+            'category_id' => $category->id,
+            'title' => 'Berita Terkait SIMRS',
+            'slug' => 'berita-terkait-simrs',
+            'content' => '<p>Konten terkait.</p>',
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+        ]);
+
+        $this->get(route('public.news.show', $mainNews->slug))
+            ->assertOk()
+            ->assertSee('Berita Terkait SIMRS');
+    }
+
+    public function test_news_detail_falls_back_to_latest_news_when_same_category_is_empty()
+    {
+        $mainCategory = Category::create(['name' => 'Utama', 'slug' => 'utama']);
+        $otherCategory = Category::create(['name' => 'Lainnya', 'slug' => 'lainnya']);
+        $mainNews = News::create([
+            'category_id' => $mainCategory->id,
+            'title' => 'Berita Utama Tanpa Teman',
+            'slug' => 'berita-utama-tanpa-teman',
+            'content' => '<p>Konten utama.</p>',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+        News::create([
+            'category_id' => $otherCategory->id,
+            'title' => 'Berita Fallback',
+            'slug' => 'berita-fallback',
+            'content' => '<p>Konten fallback.</p>',
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+        ]);
+
+        $this->get(route('public.news.show', $mainNews->slug))
+            ->assertOk()
+            ->assertSee('Berita Fallback');
     }
 }
